@@ -21,7 +21,7 @@ namespace Algorithm.Training
         // Четвертый элемент 3, потому что в [0, 1, 2, 3] и [0, 3, 4, 2] три общих документа (0, 2 и 3).
         // Пятый элемент 5, потому что в [0, 1, 2, 3, 4] и [0, 3, 4, 2, 1] встречается каждый идентификатор документа.
 
-        public int[] CountDuplicates(int[] one, int[] other)
+        public int[] CountTopK(int[] one, int[] other)
         {
             int counter = 0;
             int[] result = new int[one.Length]; 
@@ -55,7 +55,18 @@ namespace Algorithm.Training
             var first = new [] {0, 1, 2, 3, 4};
             var second = new [] {0, 3, 4, 2, 1};
 
-            var result = CountDuplicates(first, second);
+            var result = CountTopK(first, second);
+            
+            CollectionAssert.AreEqual(new []{1, 1, 1, 3, 5}, result);
+        }
+        
+        [Test]
+        public void Acceptance_ObservableVersion()
+        {
+            var first = new [] {0, 1, 2, 3, 4};
+            var second = new [] {0, 3, 4, 2, 1};
+
+            var result = CountTopK(first, second);
             
             CollectionAssert.AreEqual(new []{1, 1, 1, 3, 5}, result);
         }
