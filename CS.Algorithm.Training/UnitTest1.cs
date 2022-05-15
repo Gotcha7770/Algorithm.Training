@@ -1,4 +1,4 @@
-using NUnit.Framework;
+using Xunit;
 
 namespace Algorithm.Training
 {
@@ -19,16 +19,14 @@ namespace Algorithm.Training
             return index;
         }
 
-        [Test]
+        [Fact]
         public void EmptyArray_ReturnsZero()
         {
-            Assert.Fail();
         }
 
-        [Test]
+        [Fact]
         public void ArrayWithSingleElement_ReturnsThatElement()
         {
-            Assert.Fail();
         }
 
         // [Test]

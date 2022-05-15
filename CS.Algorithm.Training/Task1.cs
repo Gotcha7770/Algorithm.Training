@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using Shouldly;
+using Xunit;
 
 namespace Algorithm.Training
 {
-    [TestFixture]
     public class Task1
     {
         // Дан упорядоченный массив натуральных чисел, повторяющихся элементов в списке нет.
@@ -42,14 +42,14 @@ namespace Algorithm.Training
                 .Select(x => x.start == x.end ? x.start.ToString() : $"{x.start}-{x.end}"));
         }
 
-        [Test]
+        [Fact]
         public void Acceptance()
         {
             var input = new [] {2, 3, 5, 6, 7, 8, 9, 11, 20, 21, 22};
 
             var result = Transform(input);
             
-            Assert.AreEqual("2-3,5-9,11,20-22", result);
+            result.ShouldBe("2-3,5-9,11,20-22");
         }
     }
 }

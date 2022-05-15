@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using NUnit.Framework;
+using Shouldly;
+using Xunit;
 
 namespace Algorithm.Training
 {
-    [TestFixture]
     public class Task2
     {
         // Даны две поисковые выдачи размера N, каждая из которых
@@ -49,18 +49,18 @@ namespace Algorithm.Training
             return result;
         }
         
-        [Test]
+        [Fact]
         public void Acceptance()
         {
             var first = new [] {0, 1, 2, 3, 4};
             var second = new [] {0, 3, 4, 2, 1};
 
-            var result = CountTopK(first, second);
+            int[] result = CountTopK(first, second);
             
-            CollectionAssert.AreEqual(new []{1, 1, 1, 3, 5}, result);
+            result.ShouldBe(new []{1, 1, 1, 3, 5});
         }
         
-        [Test]
+        [Fact]
         public void Acceptance_ObservableVersion()
         {
             var first = new [] {0, 1, 2, 3, 4};
@@ -68,7 +68,7 @@ namespace Algorithm.Training
 
             var result = CountTopK(first, second);
             
-            CollectionAssert.AreEqual(new []{1, 1, 1, 3, 5}, result);
+            result.ShouldBe(new []{1, 1, 1, 3, 5});
         }
     }
 }
