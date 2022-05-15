@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Algorithm.Training", "Algorithm.Training\Algorithm.Training.csproj", "{0EDBA931-33B6-4E6E-9F05-A810066B8C4A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CS.Algorithm.Training", "CS.Algorithm.Training\CS.Algorithm.Training.csproj", "{0EDBA931-33B6-4E6E-9F05-A810066B8C4A}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FS.Algorithm.Training", "FS.Algorithm.Training\FS.Algorithm.Training.fsproj", "{6832F491-EA1F-4803-9FE5-BBD50CF58196}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +14,9 @@ Global
 		{0EDBA931-33B6-4E6E-9F05-A810066B8C4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EDBA931-33B6-4E6E-9F05-A810066B8C4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EDBA931-33B6-4E6E-9F05-A810066B8C4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6832F491-EA1F-4803-9FE5-BBD50CF58196}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6832F491-EA1F-4803-9FE5-BBD50CF58196}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6832F491-EA1F-4803-9FE5-BBD50CF58196}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6832F491-EA1F-4803-9FE5-BBD50CF58196}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
