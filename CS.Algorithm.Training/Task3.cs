@@ -126,7 +126,7 @@ namespace Algorithm.Training
 
         #region LinkedList
 
-        static void Reverse<T>(LinkedList<T> source)
+        void Reverse<T>(LinkedList<T> source)
         {
             var head  = source.First;
             while (head?.Next is not null)
@@ -162,6 +162,49 @@ namespace Algorithm.Training
             Reverse(list);
             
             list.ShouldBe(new []{5, 4, 3, 2, 1});
+        }
+
+        #endregion
+
+        #region NewLinkedList
+
+        LinkedList<T> Reverse2<T>(LinkedList<T> source)
+        {
+            var result = new LinkedList<T>();
+
+            for (var tail = source.Last; tail != null; tail = tail.Previous)
+            {
+                result.AddLast(tail.Value);
+            }
+
+            return result;
+        }
+
+        [Fact]
+        public void NewLinkedList_Acceptance_Empty()
+        {
+            var list = new LinkedList<int>();
+            var result = Reverse2(list);
+            
+            result.ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void NewLinkedList_Acceptance_Single()
+        {
+            var list = new LinkedList<int>(new[] { 1 });
+            var result = Reverse2(list);
+            
+            result.ShouldBe(new[] { 1 });
+        }
+
+        [Fact]
+        public void NewLinkedList_Acceptance_Many()
+        {
+            var list = new LinkedList<int>(new[] { 1, 2, 3, 4, 5 });
+            var result = Reverse2(list);
+            
+            result.ShouldBe(new []{5, 4, 3, 2, 1});
         }
 
         #endregion
