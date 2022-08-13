@@ -1,4 +1,4 @@
-module Tests
+module Task3
 
 open Swensen.Unquote
 open Xunit
@@ -7,13 +7,16 @@ open Xunit
 // Последний элемент должен стать первым, а первый - последним.
 
 // [1] :: [2, 3]
-// [1] @ [2] :: [3]
-// [1, 2] @ [3]
+// [2] @ [1] :: [3]
+// [3] @ [2, 1] :: []
 
-let rec reverse list =
-    match list with
-    | head :: tail -> (reverse tail) @ [head] 
-    | _ -> list
+let reverse list =
+    let rec loop list acc =
+        match list with
+        | [] -> acc
+        | [x] -> x::acc
+        | head :: tail -> loop tail (head :: acc)
+    loop list []
     
 [<Fact>]
 let acceptance_empty () =
