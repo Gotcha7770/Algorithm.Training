@@ -11,6 +11,7 @@ let stringify a b =
     
 let findPersonPreference person a b =
     person
+    |> Seq.filter(fun x -> x = a || x = b)
     |> Seq.map (fun x -> if x = a then stringify a b else stringify b a)
     |> Seq.head
     
@@ -23,6 +24,7 @@ let findGroupPreference group a b =
     |> Seq.head
     
 let Alice = ["A"; "B"; "C"]
+let Bob = ["B"; "C"; "A"]
 
 let group =
     [Seq.replicate 23 ["A"; "B"; "C"];
@@ -37,9 +39,21 @@ let alice_preference_between_A_and_B () =
     test <@ Alice |> findPersonPreference <|"A" <| "B" = "A -> B" @>
     
 [<Fact>]
+let alice_preference_between_B_and_C () =
+    test <@ Alice |> findPersonPreference <|"B" <| "C" = "B -> C" @>
+    
+[<Fact>]
+let alice_preference_between_A_and_C () =
+    test <@ Alice |> findPersonPreference <|"A" <| "C" = "A -> C" @>
+    
+[<Fact>]
+let bob_preference_between_A_and_C () =
+    test <@ Bob |> findPersonPreference <|"A" <| "C" = "C -> A" @>
+    
+[<Fact>]
 let group_preference_between_A_and_B () =
     test <@ group |> findGroupPreference <| "A" <| "B" = "B -> A" @>
     
 [<Fact>]
 let group_preference_between_A_and_С () =
-    test <@ group |> findGroupPreference <| "A" <| "С" = "С -> A" @>
+    test <@ group |> findGroupPreference <| "A" <| "C" = "C -> A" @>
