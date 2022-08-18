@@ -9,11 +9,12 @@ open Xunit
 let stringify a b =
     $"{a} -> {b}"
     
-let findPersonPreference person a b =
-    person
-    |> Seq.filter(fun x -> x = a || x = b)
-    |> Seq.map (fun x -> if x = a then stringify a b else stringify b a)
-    |> Seq.head
+let rec findPersonPreference person a b =
+    match person with
+    | head :: _ when head = a -> stringify a b
+    | head :: _ when head = b -> stringify b a
+    | _ :: tail -> findPersonPreference tail a b
+    | [] -> ""
     
 let findGroupPreference group a b =
     group
@@ -32,28 +33,26 @@ let group =
      Seq.replicate 16 ["C"; "B"; "A"]
      Seq.replicate 2 ["C"; "A"; "B"]]
     |> Seq.concat
-    
 
-[<Fact>]
-let alice_preference_between_A_and_B () =
-    test <@ Alice |> findPersonPreference <|"A" <| "B" = "A -> B" @>
+[<Theory>]
+[<InlineData("A", "B", "A -> B")>]
+[<InlineData("B", "C", "B -> C")>]
+[<InlineData("A", "C", "A -> C")>]
+[<InlineData("C", "A", "A -> C")>]
+let alice_preferences a b expected=
+    test <@ findPersonPreference Alice a b = expected @>
     
-[<Fact>]
-let alice_preference_between_B_and_C () =
-    test <@ Alice |> findPersonPreference <|"B" <| "C" = "B -> C" @>
+[<Theory>]
+[<InlineData("A", "B", "B -> A")>]
+[<InlineData("B", "C", "B -> C")>]
+[<InlineData("A", "C", "C -> A")>]
+[<InlineData("C", "A", "C -> A")>]
+let bob_preferences a b expected =
+    test <@ findPersonPreference Bob a b = expected @>
     
-[<Fact>]
-let alice_preference_between_A_and_C () =
-    test <@ Alice |> findPersonPreference <|"A" <| "C" = "A -> C" @>
-    
-[<Fact>]
-let bob_preference_between_A_and_C () =
-    test <@ Bob |> findPersonPreference <|"A" <| "C" = "C -> A" @>
-    
-[<Fact>]
-let group_preference_between_A_and_B () =
-    test <@ group |> findGroupPreference <| "A" <| "B" = "B -> A" @>
-    
-[<Fact>]
-let group_preference_between_A_and_С () =
-    test <@ group |> findGroupPreference <| "A" <| "C" = "C -> A" @>
+[<Theory>]
+[<InlineData("A", "B", "B -> A")>]
+[<InlineData("B", "C", "B -> C")>]
+[<InlineData("A", "C", "C -> A")>]
+let group_preferences a b expected =
+    test <@ findGroupPreference group a b = expected @>
