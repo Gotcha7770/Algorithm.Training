@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Shouldly;
+using FluentAssertions;
 using Xunit;
 
 namespace Algorithm.Training
@@ -49,7 +49,7 @@ namespace Algorithm.Training
 
             var result = Transform(input);
             
-            result.ShouldBe("2-3,5-9,11,20-22");
+            result.Should().Be("2-3,5-9,11,20-22");
         }
     }
 }

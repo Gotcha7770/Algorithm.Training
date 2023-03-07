@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Shouldly;
+using FluentAssertions;
 using Xunit;
 
 namespace Algorithm.Training
@@ -57,7 +57,7 @@ namespace Algorithm.Training
 
             int[] result = CountTopK(first, second);
             
-            result.ShouldBe(new []{1, 1, 1, 3, 5});
+            result.Should().BeEquivalentTo(new []{1, 1, 1, 3, 5});
         }
         
         [Fact]
@@ -68,7 +68,7 @@ namespace Algorithm.Training
 
             var result = CountTopK(first, second);
             
-            result.ShouldBe(new []{1, 1, 1, 3, 5});
+            result.Should().BeEquivalentTo(new []{1, 1, 1, 3, 5});
         }
     }
 }

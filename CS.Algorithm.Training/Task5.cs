@@ -1,5 +1,4 @@
-﻿using System;
-using Shouldly;
+﻿using FluentAssertions;
 using Xunit;
 
 namespace Algorithm.Training
@@ -22,7 +21,7 @@ namespace Algorithm.Training
         [InlineData(7, 3, 3)]
         public void Acceptance(int total, int pageSize, int expected)
         {
-            CountPages(total, pageSize).ShouldBe(expected);
+            CountPages(total, pageSize).Should().Be(expected);
         }
     }
 }

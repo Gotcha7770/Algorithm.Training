@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Shouldly;
+using FluentAssertions;
 using Xunit;
 
 namespace Algorithm.Training
@@ -100,7 +100,7 @@ namespace Algorithm.Training
             var list = new List<int>();
             list.Reverse();
             
-            list.ShouldBeEmpty();
+            list.Should().BeEmpty();
         }
 
         [Fact]
@@ -109,7 +109,7 @@ namespace Algorithm.Training
             var list = new List<int>(1);
             list.Reverse();
             
-            list.Values.ShouldBe(new []{1});
+            list.Values.Should().BeEquivalentTo(new []{1});
         }
 
         [Fact]
@@ -118,7 +118,7 @@ namespace Algorithm.Training
             var list = new List<int>(1, 2, 3, 4, 5);
             list.Reverse();
             
-            list.Values.ShouldBe(new []{5, 4, 3, 2, 1});
+            list.Values.Should().BeEquivalentTo(new []{5, 4, 3, 2, 1});
         }
         
 
@@ -143,7 +143,7 @@ namespace Algorithm.Training
             var list = new LinkedList<int>();
             Reverse(list);
             
-            list.ShouldBeEmpty();
+            list.Should().BeEmpty();
         }
 
         [Fact]
@@ -152,7 +152,7 @@ namespace Algorithm.Training
             var list = new LinkedList<int>(new[] { 1 });
             Reverse(list);
             
-            list.ShouldBe(new []{1});
+            list.Should().BeEquivalentTo(new []{1});
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace Algorithm.Training
             var list = new LinkedList<int>(new[] { 1, 2, 3, 4, 5 });
             Reverse(list);
             
-            list.ShouldBe(new []{5, 4, 3, 2, 1});
+            list.Should().BeEquivalentTo(new []{5, 4, 3, 2, 1});
         }
 
         #endregion
@@ -186,7 +186,7 @@ namespace Algorithm.Training
             var list = new LinkedList<int>();
             var result = Reverse2(list);
             
-            result.ShouldBeEmpty();
+            result.Should().BeEmpty();
         }
 
         [Fact]
@@ -195,7 +195,7 @@ namespace Algorithm.Training
             var list = new LinkedList<int>(new[] { 1 });
             var result = Reverse2(list);
             
-            result.ShouldBe(new[] { 1 });
+            result.Should().BeEquivalentTo(new[] { 1 });
         }
 
         [Fact]
@@ -204,7 +204,7 @@ namespace Algorithm.Training
             var list = new LinkedList<int>(new[] { 1, 2, 3, 4, 5 });
             var result = Reverse2(list);
             
-            result.ShouldBe(new []{5, 4, 3, 2, 1});
+            result.Should().BeEquivalentTo(new []{5, 4, 3, 2, 1});
         }
 
         #endregion
