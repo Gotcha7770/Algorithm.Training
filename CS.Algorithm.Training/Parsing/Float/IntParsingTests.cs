@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using FluentAssertions;
+using Sprache;
 using Xunit;
 using static FluentAssertions.FluentActions;
 
@@ -61,6 +62,25 @@ public class IntParsingTests
         result.Should().Be(output);
     }
 
+    [Theory]
+    [InlineData("0", 0)]
+    [InlineData("1", 1)]
+    [InlineData("10", 10)]
+    [InlineData("1234", 1234)]
+    [InlineData("-1234", -1234)]
+    public void ParseWithSprache(string input, int output)
+    {
+        var parser = 
+            from op in Parse.Char('-').Token().Optional()
+            let sign = op.IsDefined ? -1 : 1
+            from digits in Parse.Digit.Select(CharToInt).Many().End()
+            let abs = digits.Aggregate(0, (acc, current) => acc * 10 + current)
+            select abs * sign;
+
+        parser.Parse(input)
+            .Should().Be(output);
+    }
+
     private static int ParseInt(string input)
     {
         if (input is null)
@@ -71,33 +91,23 @@ public class IntParsingTests
 
         return input[0] == '-' 
             ? -1 * ParseIntWithoutSign(input.AsSpan(1))
-            : ParseIntWithoutSign(input);
+            : ParseIntWithoutSign(input.AsSpan());
             
     }
 
-    private static int ParseIntWithoutSign(string input)
-    {
-        return input
-            .Select((x, i) => IsCharInvalid(x) ? throw new FormatException($"invalid character at {i} index"): x)
-            .Aggregate(0, (acc, current) => acc * 10 + CharToInt(current));
-    }
-    
     private static int ParseIntWithoutSign(ReadOnlySpan<char> input)
     {
         int result = 0;
         for (int i = 0; i < input.Length; i++)
         {
             char character = input[i];
-            if (IsCharInvalid(character))
+            if (char.IsDigit(character))
                 throw new FormatException($"invalid character at {i} index");
-            result *= 10;
-            result += CharToInt(character);
+            result = result * 10 + CharToInt(character);
         }
 
         return result;
     }
-    
-    private static bool IsCharInvalid(char x) => x is < '0' or > '9';
 
     private static int CharToInt(char x) => x - '0';
 }
