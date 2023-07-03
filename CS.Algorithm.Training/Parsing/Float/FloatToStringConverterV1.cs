@@ -30,14 +30,13 @@ internal class FloatToStringConverterV1 : TypeConverter
             if (float.IsNaN(f))
                 return "NaN";
 
-            var span = string.Join(string.Empty,
+            var bitString = string.Join(string.Empty,
                     BitConverter.GetBytes(f)
                         .Reverse()
                         .Select(x => Convert.ToString(x, 2)
-                            .PadLeft(8, '0')))
-                .AsSpan();
+                            .PadLeft(8, '0')));
 
-            return $"0b{span[0]}.{span[1..9]}.{span[9..]}" as object;
+            return $"0b{bitString[0]}.{bitString[1..9]}.{bitString[9..]}" as object;
         }
 
         return base.ConvertTo(context, culture, value, destinationType);

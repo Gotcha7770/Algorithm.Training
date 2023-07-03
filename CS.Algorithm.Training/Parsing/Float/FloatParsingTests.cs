@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Buffers.Binary;
 using System.Globalization;
-using System.Linq;
 using Algorithm.Training.Parsing.Parsers;
 using FluentAssertions;
 using Sprache;
@@ -31,10 +29,24 @@ public class FloatParsingTests
     // S = 0 = 0b0
     // E = 127 + 3 = 130 = 0b10000010
     // M = (12.12 - 8)/(16 - 8) * 2^23 ~ 4320133 = 0b10000011110101110000101
+    
+    // 0.1
+    // 0.01111011.10011001100110011001100
+    // S = 0 = 0b0
+    // E = 127 - 4 = 123 = 0b01111011
+    // M = (0.1 - 0.0625)/(0.125 - 0.0625) * 2^23 ~ 5033164 = 0b10011001100110011001100
+    
+    // 0.5
+    // 0.01111110.10011001100110011001100
+    // S = 0 = 0b0
+    // E = 127 - 1 = 126 = 0b01111110
+    // M = ?
 
     //float f = BitConverter.UInt32BitsToSingle(uInt32);
 
     [Theory]
+    [InlineData(0.5, "0b0.01111110.00000000000000000000000")]
+    [InlineData(0.25, "0b0.01111101.00000000000000000000000")]
     [InlineData(19.59375, "0b0.10000011.00111001100000000000000")]
     [InlineData(263.3, "0b0.10000111.00000111010011001100110")]
     [InlineData(12.12, "0b0.10000010.10000011110101110000101")]
@@ -62,6 +74,8 @@ public class FloatParsingTests
     [InlineData("0.1", 0.1)]
     [InlineData("1", 1)]
     [InlineData("1.0", 1.0)]
+    [InlineData("0.5", 0.5)]
+    [InlineData("19.59375", 19.59375)]
     [InlineData("1234.1234", 1234.1234)]
     [InlineData("-1234.1234", -1234.1234)]
     public void Custom(string input, float output)
@@ -94,13 +108,17 @@ public class FloatParsingTests
     [InlineData("-1234.1234", -1234.1234)]
     public void ParseWithSprache(string input, float output)
     {
-        throw new NotImplementedException();
-        // var parser = 
-        //     from sign in NumericParse.Sign
-        //     from integer in NumericParse.Digits
-        //     from point in Parse.Char('.').Optional()
-        //     from fractional in NumericParse.Digits.End()
-        //     select (integer + fractional) * sign;
+        var parser = 
+            from sign in NumericParse.Sign
+            from integer in NumericParse.Digits
+            from point in Parse.Char('.').WithPosition().Optional()
+            let pointIndex = point.IsDefined ? point.Get().Start.Pos : -1
+            from fractional in NumericParse.DigitsOrEmpty
+            let abs = FloatParser.CreateFloat(integer, fractional, pointIndex)
+            select abs * sign;
+        
+        parser.Parse(input)
+            .Should().Be(output);
     }
 
     private static float ParseFloat(string input)
@@ -111,17 +129,8 @@ public class FloatParsingTests
         if (input.Length == 0)
             throw new FormatException("string length is 0");
 
-        return input[0] == '-' ? -1 * ParseFloatWithoutSign(input.AsSpan(1)) : ParseFloatWithoutSign(input.AsSpan());
-    }
-
-    private static float ParseFloatWithoutSign(ReadOnlySpan<char> input)
-    {
-        throw new NotImplementedException();
-        int pointIndex = input.IndexOf('.');
-        int integer = IntParser.ParseWithoutSign(input[..pointIndex]);
-
-        // 12.12 -> 12 + . + 12 -> 12 * 0.1^fractional.Length
-        var t = Math.Log2(12);
-        var t2 = Math.ILogB(12);
+        return input[0] == '-' 
+            ? -1 * FloatParser.ParseWithoutSign(input, 1) 
+            : FloatParser.ParseWithoutSign(input);
     }
 }

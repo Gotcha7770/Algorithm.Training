@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Algorithm.Training.Parsing.Parsers;
 using FluentAssertions;
 using Sprache;
@@ -29,7 +30,7 @@ public class IntParsingTests
     [Theory]
     [InlineData("a", "invalid character at 0 index")]
     [InlineData("12a4", "invalid character at 2 index")]
-    [InlineData("-12a4", "invalid character at 2 index")]
+    [InlineData("-12a4", "invalid character at 3 index")]
     public void Custom_InvalidCharacters_Throws(string input, string message)
     {
         Invoking(() => IntParser.Parse(input))
@@ -72,7 +73,8 @@ public class IntParsingTests
     {
         var parser = 
             from sign in NumericParse.Sign
-            from abs in NumericParse.Digits.End().Aggregate(0, (acc, current) => acc * 10 + current)
+            from digits in NumericParse.Digits.End()
+            let abs = IntParser.FromDigits(digits)
             select abs * sign;
 
         parser.Parse(input)
