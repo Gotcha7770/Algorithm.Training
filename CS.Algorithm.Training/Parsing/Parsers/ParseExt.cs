@@ -7,9 +7,9 @@ namespace Algorithm.Training.Parsing.Parsers;
 
 public static class ParseExt
 {
-    public static Parser<PositionAware<T>> WithPosition<T>(this Parser<T> value)
+    public static Parser<PositionAware<T>> WithPosition<T>(this Parser<T> parser)
     {
-        return value.Select(x => new PositionAware<T>(x)).Positioned();
+        return parser.Select(x => new PositionAware<T>(x)).Positioned();
     }
 
     public static Parser<T> Aggregate<T>(this Parser<IEnumerable<T>> parser, T seed, Func<T, T, T> func)
@@ -20,5 +20,12 @@ public static class ParseExt
             throw new ArgumentNullException(nameof(func));
 
         return parser.Then(x => Parse.Return(x.Aggregate(seed, func)));
+    }
+
+    public static Parser<IEnumerable<T>> Reverse<T>(this Parser<IEnumerable<T>> parser)
+    {
+        if (parser == null)
+            throw new ArgumentNullException(nameof (parser));
+        return parser.Select(x => x.Reverse());
     }
 }

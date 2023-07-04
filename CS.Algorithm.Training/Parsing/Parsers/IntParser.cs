@@ -40,4 +40,19 @@ public static class IntParser
             }
         }
     }
+    
+    public static IEnumerable<uint> DigitsSequenceReverse(string source, int endIndex)
+    {
+        for (int i = source.Length - 1; i >= endIndex; i--)
+        {
+            if (source[i].TryGetInt(out uint digit))
+            {
+                yield return digit;
+            }
+            else
+            {
+                throw new FormatException($"invalid character at {i} index");
+            }
+        }
+    }
 }

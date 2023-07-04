@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Algorithm.Training.Parsing.Parsers;
 using FluentAssertions;
 using Sprache;
@@ -80,7 +79,7 @@ public class FloatParsingTests
     [InlineData("-1234.1234", -1234.1234)]
     public void Custom(string input, float output)
     {
-        float result = ParseFloat(input);
+        float result = FloatParser.Parse(input);
         result.Should()
             .Be(output);
     }
@@ -90,6 +89,8 @@ public class FloatParsingTests
     [InlineData("0.1", 0.1)]
     [InlineData("1", 1)]
     [InlineData("1.0", 1.0)]
+    [InlineData("0.5", 0.5)]
+    [InlineData("19.59375", 19.59375)]
     [InlineData("1234.1234", 1234.1234)]
     [InlineData("-1234.1234", -1234.1234)]
     public void SystemParse(string input, float output)
@@ -104,6 +105,8 @@ public class FloatParsingTests
     [InlineData("0.1", 0.1)]
     [InlineData("1", 1)]
     [InlineData("1.0", 1.0)]
+    [InlineData("0.5", 0.5)]
+    [InlineData("19.59375", 19.59375)]
     [InlineData("1234.1234", 1234.1234)]
     [InlineData("-1234.1234", -1234.1234)]
     public void ParseWithSprache(string input, float output)
@@ -112,25 +115,11 @@ public class FloatParsingTests
             from sign in NumericParse.Sign
             from integer in NumericParse.Digits
             from point in Parse.Char('.').WithPosition().Optional()
-            let pointIndex = point.IsDefined ? point.Get().Start.Pos : -1
             from fractional in NumericParse.DigitsOrEmpty
-            let abs = FloatParser.CreateFloat(integer, fractional, pointIndex)
+            let abs = IntParser.FromDigits(integer) + (point.IsDefined ? FloatParser.FromFractional(fractional) : 0)
             select abs * sign;
         
         parser.Parse(input)
             .Should().Be(output);
-    }
-
-    private static float ParseFloat(string input)
-    {
-        if (input is null)
-            throw new ArgumentNullException(nameof(input));
-
-        if (input.Length == 0)
-            throw new FormatException("string length is 0");
-
-        return input[0] == '-' 
-            ? -1 * FloatParser.ParseWithoutSign(input, 1) 
-            : FloatParser.ParseWithoutSign(input);
     }
 }

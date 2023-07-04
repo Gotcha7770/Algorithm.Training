@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Algorithm.Training.Parsing.Parsers;
 using FluentAssertions;
 using Sprache;
