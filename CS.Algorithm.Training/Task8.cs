@@ -37,13 +37,21 @@ public class Task8
     public void Imperative()
     {
         string[] result = new string[_input.Length];
+        string[] numbers = _input.Where(x => x.IsNumber())
+            .OrderByDescending(int.Parse)
+            .ToArray();
+        string[] words = _input.Where(x => !x.IsNumber())
+            .OrderBy(x => x)
+            .ToArray();
 
+        int n = 0;
+        int w = 0;
         for (int i = 0; i < _input.Length; i++)
         {
             var item = _input[i];
             result[i] = item.IsNumber() ? numbers[n++] : words[w++];
         }
-
+        
         result.Should().BeEquivalentTo(_output);
     }
     

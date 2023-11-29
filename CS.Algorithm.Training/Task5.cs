@@ -1,17 +1,11 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using Xunit;
 
 namespace Algorithm.Training;
 
 public class Task5
 {
-    public int CountPages(int total, int pageSize)
-    {
-        //return total / total + (total % pageSize > 0 ? 1 : 0);
-        //return (total + pageSize - 1) / pageSize;
-        return (total - 1) / pageSize + 1;
-    }
-        
     [Theory]
     [InlineData(2, 3, 1)]
     [InlineData(3, 3, 1)]
@@ -19,8 +13,28 @@ public class Task5
     [InlineData(5, 3, 2)]
     [InlineData(6, 3, 2)]
     [InlineData(7, 3, 3)]
-    public void Acceptance(int total, int pageSize, int expected)
+    public void CountPagesTest(int total, int pageSize, int expected)
     {
-        CountPages(total, pageSize).Should().Be(expected);
+        CountPages(total, pageSize)
+            .Should()
+            .Be(expected);
     }
+
+    [Theory]
+    [InlineData(2, 3, 2)]
+    [InlineData(3, 3, 0)]
+    [InlineData(4, 3, 1)]
+    [InlineData(5, 3, 2)]
+    [InlineData(6, 3, 0)]
+    [InlineData(7, 3, 1)]
+    public void LeftOverTest(int total, int pageSize, int expected)
+    {
+        GetLeftOver(total, pageSize)
+            .Should()
+            .Be(expected);
+    }
+
+    public static int CountPages(int total, int pageSize) => (total + pageSize - 1) / pageSize;
+
+    public static int GetLeftOver(int total, int pageSize) => total % pageSize;
 }
