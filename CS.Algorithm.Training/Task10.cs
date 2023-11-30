@@ -118,11 +118,16 @@ public class Task10
 
     private int GetMaxConsecutiveOnes3(int[] source)
     {
+        if (source.Length == 0)
+            return 0;
+
         int result = 0;
-        int consecutiveOnesCount = source.Length > 0 ? source[0] : 0;
+        int consecutiveOnesCount = source[0];
+        bool containsZero = consecutiveOnesCount == 0;
         for (int i = 1; i < source.Length; i++)
         {
             consecutiveOnesCount += source[i];
+            containsZero |= source[i] == 0;
 
             if (source[i] + source[i - 1] < 1)
             {
@@ -130,11 +135,49 @@ public class Task10
                 consecutiveOnesCount = 0;
             }
         }
-        
-        return Math.Max(result, consecutiveOnesCount);
+
+        result = Math.Max(result, consecutiveOnesCount);
+        return result == 0 || containsZero ? result : result - 1;
+    }
+
+    readonly record struct Range(int Index, int Length)
+    {
+        public static Range Empty { get; } = new Range(0, 0);
+
+        public bool IsEmpty => Length == 0;
+    }
+
+    int GetMaxConsecutiveOnes4(int[] source)
+    {
+        // if (source.Length == 0)
+        //     return 0;
+        //
+        // Range prev = Range.Empty;
+        // Range current = source[0] == 0 ? Range.Empty : new Range(0, 1);
+        var list = new LinkedList<Range>();
+        Range current = Range.Empty;
+        for (int i = 0; i < source.Length; i++)
+        {
+            if (source[i] == 0)
+            {
+                if (!current.IsEmpty)
+                {
+                    list.AddLast(current);
+                }
+
+                current = new Range(i, 0);
+            }
+            else
+            {
+                current = current with { Length = current.Length + 1 };
+            }
+        }
+
+        return 0;
+        //return prev.Length + current.Length;
     }
     
-    int GetMaxConsecutiveOnes4(int[] seq)
+    int GetMaxConsecutiveOnes5(int[] seq)
     {
         var maxSum = 0;
         var prevSeqSize = 0;
@@ -161,17 +204,17 @@ public class Task10
     [Theory]
     [InlineData(new int[0], 0)]
     [InlineData(new[] { 0 }, 0)]
-    [InlineData(new[] { 1 }, 1)]
+    [InlineData(new[] { 1 }, 0)]
     [InlineData(new[] { 0, 1 }, 1)]
     [InlineData(new[] { 1, 1, 0, 1 }, 3)]
     [InlineData(new[] { 1, 1, 0, 0, 1 }, 2)]
     [InlineData(new[] { 1, 1, 0, 1, 1, 0 }, 4)]
     [InlineData(new[] { 0, 0, 0, 0, 0 }, 0)]
-    [InlineData(new[] { 1, 1, 1, 1, 1 }, 5)]
-    [InlineData(new[] { 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1 }, 7)]
+    [InlineData(new[] { 1, 1, 1, 1, 1 }, 4)]
+    [InlineData(new[] { 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1 }, 5)]
     public void Acceptance(int[] items, int expected)
     {
-        GetMaxConsecutiveOnes3(items)
+        GetMaxConsecutiveOnes4(items)
             .Should()
             .Be(expected);
     }
