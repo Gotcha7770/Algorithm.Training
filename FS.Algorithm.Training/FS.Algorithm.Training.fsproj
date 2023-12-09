@@ -1,14 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <IsPackable>false</IsPackable>
         <GenerateProgramFile>false</GenerateProgramFile>
+        <LangVersion>8.0</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
         <Compile Include="Task3.fs" />
         <Compile Include="Task6.fs" />
+        <Compile Include="Task11.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 

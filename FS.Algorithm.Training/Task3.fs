@@ -1,7 +1,7 @@
 module Task3
 
-open Swensen.Unquote
 open Xunit
+open Swensen.Unquote
 
 // Напишите функцию, которая развернёт список.
 // Последний элемент должен стать первым, а первый - последним.

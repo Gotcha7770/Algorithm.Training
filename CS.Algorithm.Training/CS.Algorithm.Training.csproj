@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
 
         <IsPackable>false</IsPackable>
 
         <RootNamespace>Algorithm.Training</RootNamespace>
 
-        <LangVersion>latest</LangVersion>
+        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
