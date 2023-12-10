@@ -10,37 +10,32 @@ let (|Prefix|_|) (prefix:string) (value:string) =
     else
         None
 
-type List<'T>
+type List<'a>
     with member this.JoinToString(separator:char) =
             this
             |> Seq.map(string)
             |> (fun x -> String.Join(separator, x))
 
-let getNextSegment (value:string) (separator:char) =
-    match value.IndexOf(separator) with
-    | -1 -> (value, 0)
-    | 0 -> ("", 1)
-    | x -> (value[..x - 1], x)
-
+// TODO:производительность?
+// TODO:проверить вариант с List.rev
 let split (value:string) (separator:char) =
-    let rec loop curr acc =
-        match getNextSegment curr separator with
-        | "", 0 -> acc
-        | s, 0 -> acc @ [s]
-        | s, x -> loop curr[x..] (acc @ [s])
+    let rec loop (curr:string) acc =
+        match curr.IndexOf(separator) with
+        | -1 -> acc @ [curr]
+        | x -> loop curr[x + 1..] (acc @ [curr[..x - 1]])
     loop value []
 
 let splitTestData : obj[] list =
     [
-        [| ""; List.empty<string> |]
-        [| "/"; [""] |]
+        [| ""; [""] |]
+        [| "/"; [""; ""] |]
         [| "/one"; [""; "one"] |]
         [| "//one"; [""; ""; "one"] |]
         [| "one"; ["one"] |]
         [| "one/"; ["one"; ""] |]
         [| "one//"; ["one"; ""; ""] |]
-        [| "one/second"; ["one"; ""; "second"] |]
-        [| "one//second"; ["one"; ""; ""; "second"] |]
+        [| "one/second"; ["one"; "second"] |]
+        [| "one//second"; ["one"; ""; "second"] |]
     ]
 
 [<Theory>]
