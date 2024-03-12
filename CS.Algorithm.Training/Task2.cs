@@ -59,15 +59,4 @@ public class Task2
             
         result.Should().BeEquivalentTo(new []{1, 1, 1, 3, 5});
     }
-        
-    [Fact]
-    public void Acceptance_ObservableVersion()
-    {
-        var first = new [] {0, 1, 2, 3, 4};
-        var second = new [] {0, 3, 4, 2, 1};
-
-        var result = CountTopK(first, second);
-            
-        result.Should().BeEquivalentTo(new []{1, 1, 1, 3, 5});
-    }
 }

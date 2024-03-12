@@ -43,8 +43,8 @@ public static class FloatParser
             throw new FormatException("string length is 0");
 
         return input[0] == '-' 
-            ? -1 * FloatParser.ParseWithoutSign(input, 1) 
-            : FloatParser.ParseWithoutSign(input);
+            ? -1 * ParseWithoutSign(input, 1) 
+            : ParseWithoutSign(input);
     }
 
     public static float ParseWithoutSign(string input, int startIndex = 0)

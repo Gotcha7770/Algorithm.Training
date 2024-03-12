@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -9,8 +10,8 @@ public class Task8
     //задача input превратить в output
     // (независимая сортировка для разных типов)
         
-    readonly string[] _input = new[]
-    {
+    readonly string[] _input =
+    [
         "Вишня",
         "1",
         "Боб",
@@ -19,10 +20,10 @@ public class Task8
         "22",
         "0",
         "Арбуз"
-    };
+    ];
 
-    readonly string[] _output = new[]
-    {
+    readonly string[] _output =
+    [
         "Арбуз",
         "22",
         "Боб",
@@ -31,7 +32,7 @@ public class Task8
         "1",
         "0",
         "Яблоко"
-    };
+    ];
         
     [Fact]
     public void Imperative()
@@ -48,7 +49,7 @@ public class Task8
         int w = 0;
         for (int i = 0; i < _input.Length; i++)
         {
-            var item = _input[i];
+            string item = _input[i];
             result[i] = item.IsNumber() ? numbers[n++] : words[w++];
         }
         
@@ -58,29 +59,38 @@ public class Task8
     [Fact]
     public void Declarative()
     {
-        // сортировать можно только имея все элементы на руках
-        //(input, strings, integers) => input is int ? integers.Next : strings.Next
-
-        var result = EnumerableEx.Create<string>(async yielder =>
-        {
-            using var control =  _input.Select(x => x.IsNumber()).GetEnumerator();
-            using var words = _input.Where(x => !x.IsNumber()).OrderBy(x => x).GetEnumerator();
-            using var numbers = _input.Where(x => x.IsNumber()).OrderByDescending(int.Parse).GetEnumerator();
-
-            while (control.MoveNext())
-            {
-                var awaitable = control.Current switch
-                {
-                    true when numbers.MoveNext() => yielder.Return(numbers.Current),
-                    false when words.MoveNext() => yielder.Return(words.Current),
-                    _ => yielder.Break()
-                };
-
-                await awaitable;
-            }
-        });
+        var result = MixedSort(_input);
 
         result.Should().BeEquivalentTo(_output);
+    }
+
+    private IEnumerable<string> MixedSort(string[] values)
+    {
+        // ["1", "b", "2", "a"] -> []
+        // сортировать можно только имея все элементы на руках
+        //(input, strings, integers) => input is int ? integers.Next : strings.Next
+        using var words = values.Where(x => !x.IsNumber())
+            .OrderBy(x => x)
+            .GetEnumerator();
+        using var numbers = values.Where(x => x.IsNumber())
+            .OrderByDescending(int.Parse)
+            .GetEnumerator();
+
+        foreach (string value in values)
+        {
+            if (value.IsNumber() && numbers.MoveNext())
+            {
+                yield return numbers.Current;
+            }
+            else if (words.MoveNext())
+            {
+                yield return words.Current;
+            }
+            else
+            {
+                yield break;
+            }
+        }
     }
 }
 

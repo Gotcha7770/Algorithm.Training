@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Document>
+    <Property>Abc</Property>
+    <AttributeProperty value="123" />
+    <List>
+        <ListItem>1</ListItem>
+        <ListItem>2</ListItem>
+        <ListItem>3</ListItem>
+    </List>
+</Document>

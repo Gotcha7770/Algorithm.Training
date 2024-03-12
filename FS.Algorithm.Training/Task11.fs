@@ -22,13 +22,14 @@ let split (value:string) (separator:char) =
     let rec loop (curr:string) acc =
         match curr.IndexOf(separator) with
         | -1 -> acc @ [curr]
-        | x -> loop curr[x + 1..] (acc @ [curr[..x - 1]])
+        | x -> acc @ [curr[..x - 1]] |> loop curr[x + 1..]
     loop value []
 
-let splitTestData : obj[] list =
+let splitTestCases : obj[] list =
     [
         [| ""; [""] |]
         [| "/"; [""; ""] |]
+        [| "//"; [""; ""; ""] |]
         [| "/one"; [""; "one"] |]
         [| "//one"; [""; ""; "one"] |]
         [| "one"; ["one"] |]
@@ -39,21 +40,21 @@ let splitTestData : obj[] list =
     ]
 
 [<Theory>]
-[<MemberData(nameof(splitTestData))>]
+[<MemberData(nameof(splitTestCases))>]
 let ``split string test`` value expected =
     test <@ split value '/' = expected @>
 
 type Segment =
-    | LevelUp
+    | GoUp
     | Ordinal of string
     override this.ToString() =
         match this with
         | Ordinal value -> value
-        | LevelUp       -> ".."
+        | GoUp       -> ".."
 
 let getSegment value =
     match value with
-    | ".." -> LevelUp
+    | ".." -> GoUp
     | _    -> Ordinal value
 
 type Path = 
