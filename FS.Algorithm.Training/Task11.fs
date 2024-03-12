@@ -25,22 +25,21 @@ let split (value:string) (separator:char) =
         | x -> acc @ [curr[..x - 1]] |> loop curr[x + 1..]
     loop value []
 
-let splitTestCases : obj[] list =
-    [
-        [| ""; [""] |]
-        [| "/"; [""; ""] |]
-        [| "//"; [""; ""; ""] |]
-        [| "/one"; [""; "one"] |]
-        [| "//one"; [""; ""; "one"] |]
-        [| "one"; ["one"] |]
-        [| "one/"; ["one"; ""] |]
-        [| "one//"; ["one"; ""; ""] |]
-        [| "one/second"; ["one"; "second"] |]
-        [| "one//second"; ["one"; ""; "second"] |]
-    ]
+type SplitTestCases() as this =
+    inherit TheoryData<string, string list>()
+    do this.Add("", [""])
+       this.Add("/", [""; ""])
+       this.Add("//", [""; ""; ""])
+       this.Add("/one", [""; "one"])
+       this.Add("//one", [""; ""; "one"])
+       this.Add("one", ["one"])
+       this.Add("one/", ["one"; ""])
+       this.Add("one//", ["one"; ""; ""])
+       this.Add("one/second", ["one"; "second"])
+       this.Add("one//second", ["one"; ""; "second"])
 
 [<Theory>]
-[<MemberData(nameof(splitTestCases))>]
+[<ClassData(typeof<SplitTestCases>)>]
 let ``split string test`` value expected =
     test <@ split value '/' = expected @>
 
