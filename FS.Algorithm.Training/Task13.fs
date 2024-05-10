@@ -13,11 +13,14 @@ type PriceWithDate = { Price: decimal; Date: DateTime }
 let maxByOrOption selector items =
      match items with
      | [] -> None
-     | items -> items |> List.maxBy selector |> Option.Some
-    
+     | items -> items |> List.maxBy selector |> Some
+
 let getPriceByDate date (prices: PriceWithDate list option) =
     match prices with
-    | Some items -> items |> List.filter (fun x -> x.Date <= date) |> maxByOrOption (_.Date) |> Option.map (_.Price)
+    | Some items -> items
+                    |> List.filter (fun x -> x.Date <= date)
+                    |> maxByOrOption (_.Date)
+                    |> Option.map (_.Price)
     | None -> None
 
 type GetPriceByDateCases() as this = 
