@@ -10,16 +10,12 @@ open Swensen.Unquote
 
 type PriceWithDate = { Price: decimal; Date: DateTime }
 
-let maxByOrOption selector items =
-     match items with
-     | [] -> None
-     | items -> items |> List.maxBy selector |> Some
-
 let getPriceByDate date (prices: PriceWithDate list option) =
     match prices with
     | Some items -> items
                     |> List.filter (fun x -> x.Date <= date)
-                    |> maxByOrOption (_.Date)
+                    |> List.sortBy (_.Date)
+                    |> List.tryLast
                     |> Option.map (_.Price)
     | None -> None
 
