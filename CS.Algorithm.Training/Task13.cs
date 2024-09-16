@@ -17,7 +17,7 @@ public class Task13
     // в параметре prices дубликатов цен для одной и той же даты нет и цена верная
     public (bool isPriceFound, decimal price) GetPriceByDate1(DateTime date, PriceWithDate[] prices)
     {
-        prices ??= Array.Empty<PriceWithDate>();
+        prices ??= [];
         
         PriceWithDate max = default;
         
@@ -34,7 +34,7 @@ public class Task13
 
     public (bool isPriceFound, decimal price) GetPriceByDate2(DateTime date, PriceWithDate[] prices)
     {
-        prices ??= Array.Empty<PriceWithDate>();
+        prices ??= [];
 
         return prices
             .Where(x => x.Date <= date)
@@ -56,6 +56,14 @@ public class Task13
     [ClassData(typeof(GetPriceByDateCases))]
     public void Acceptance(DateTime date, PriceWithDate[] prices, (bool, decimal) expected)
     {
+        GetPriceByDate1(date, prices)
+            .Should()
+            .BeEquivalentTo(expected);
+
+        GetPriceByDate2(date, prices)
+            .Should()
+            .BeEquivalentTo(expected);
+
         GetPriceByDate3(date, prices)
             .Should()
             .BeEquivalentTo(expected);

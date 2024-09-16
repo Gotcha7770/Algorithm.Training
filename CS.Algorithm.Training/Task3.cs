@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -12,24 +13,20 @@ public class Task3
 
     #region CustomList
 
-    private class Node<T>
+    private record Node<T>(T Value)
     {
-        public T Value { get; }
-            
         public Node<T> Next { get; set; }
-
-        private Node(T value) => Value = value;
 
         public static implicit operator T(Node<T> node) => node.Value;
             
-        public static implicit operator Node<T>(T value) => new Node<T>(value);
+        public static implicit operator Node<T>(T value) => new(value);
     }
 
-    private class List<T> : IEnumerable<Node<T>>
+    private class CustomLinkedList<T> : IEnumerable<Node<T>>
     {
         public Node<T> Head { get; private set; }
 
-        public List(params T[] values)
+        public CustomLinkedList(params T[] values)
         {
             if (values.Length > 0)
             {
@@ -75,29 +72,13 @@ public class Task3
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public IEnumerable<T> Values => ValuesIterator();
-            
-        private IEnumerable<T> ValuesIterator()
-        {
-            using (var enumerator = GetEnumerator())
-            {
-                while (enumerator.MoveNext())
-                {
-                    yield return enumerator.Current;
-                }
-            }
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     [Fact]
     public void Acceptance_Empty()
     {
-        var list = new List<int>();
+        var list = new CustomLinkedList<int>();
         list.Reverse();
             
         list.Should().BeEmpty();
@@ -106,19 +87,21 @@ public class Task3
     [Fact]
     public void Acceptance_Single()
     {
-        var list = new List<int>(1);
+        var list = new CustomLinkedList<int>(1);
         list.Reverse();
-            
-        list.Values.Should().BeEquivalentTo(new []{1});
+
+        list.Select(x => x.Value).Should()
+            .BeEquivalentTo([1], opt => opt.WithAutoConversion());
     }
 
     [Fact]
     public void Acceptance_Many()
     {
-        var list = new List<int>(1, 2, 3, 4, 5);
+        var list = new CustomLinkedList<int>(1, 2, 3, 4, 5);
         list.Reverse();
             
-        list.Values.Should().BeEquivalentTo(new []{5, 4, 3, 2, 1});
+        list.Select(x => x.Value).Should()
+            .BeEquivalentTo([5, 4, 3, 2, 1]);
     }
         
 
@@ -149,19 +132,19 @@ public class Task3
     [Fact]
     public void LinkedList_Acceptance_Single()
     {
-        var list = new LinkedList<int>(new[] { 1 });
+        var list = new LinkedList<int>([1]);
         Reverse(list);
             
-        list.Should().BeEquivalentTo(new []{1});
+        list.Should().BeEquivalentTo([1]);
     }
 
     [Fact]
     public void LinkedList_Acceptance_Many()
     {
-        var list = new LinkedList<int>(new[] { 1, 2, 3, 4, 5 });
+        var list = new LinkedList<int>([1, 2, 3, 4, 5]);
         Reverse(list);
             
-        list.Should().BeEquivalentTo(new []{5, 4, 3, 2, 1});
+        list.Should().BeEquivalentTo([5, 4, 3, 2, 1]);
     }
 
     #endregion
@@ -192,19 +175,19 @@ public class Task3
     [Fact]
     public void NewLinkedList_Acceptance_Single()
     {
-        var list = new LinkedList<int>(new[] { 1 });
+        var list = new LinkedList<int>([1]);
         var result = Reverse2(list);
             
-        result.Should().BeEquivalentTo(new[] { 1 });
+        result.Should().BeEquivalentTo([1]);
     }
 
     [Fact]
     public void NewLinkedList_Acceptance_Many()
     {
-        var list = new LinkedList<int>(new[] { 1, 2, 3, 4, 5 });
+        var list = new LinkedList<int>([1, 2, 3, 4, 5]);
         var result = Reverse2(list);
             
-        result.Should().BeEquivalentTo(new []{5, 4, 3, 2, 1});
+        result.Should().BeEquivalentTo([5, 4, 3, 2, 1]);
     }
 
     #endregion
