@@ -12,7 +12,7 @@ public class Task2
     // для K от 1 до N.
     // top-K выдачей называется выдача первых K результатов как из
     // первой, так и из второй поисковой выдачи.
-        
+
     // Например:
     // ([0, 1, 2, 3, 4], [0, 3, 4, 2, 1]) => [1, 1, 1, 3, 5]
     // Первый элемент 1, потому что в [0] и [0] один общий документ.
@@ -21,13 +21,12 @@ public class Task2
     // Четвертый элемент 3, потому что в [0, 1, 2, 3] и [0, 3, 4, 2] три общих документа (0, 2 и 3).
     // Пятый элемент 5, потому что в [0, 1, 2, 3, 4] и [0, 3, 4, 2, 1] встречается каждый идентификатор документа.
 
-    public int[] CountTopK(int[] one, int[] other)
+    public int[] CountTopK1(int[] one, int[] other)
     {
         int counter = 0;
-        int[] result = new int[one.Length]; 
-        var set1 = new HashSet<int>();
-        var set2 = new HashSet<int>();
-            
+        int[] result = new int[one.Length];
+        var set = new HashSet<int>();
+
         for (int i = 0; i < one.Length; i++)
         {
             if (one[i] == other[i])
@@ -36,11 +35,11 @@ public class Task2
             }
             else
             {
-                set1.Add(one[i]);
-                set2.Add(other[i]);
-                    
-                counter += set2.Contains(one[i]) ? 1 : 0;
-                counter += set1.Contains(other[i]) ? 1 : 0;
+                counter += set.Contains(one[i]) ? 1 : 0;
+                set.Add(one[i]);
+
+                counter += set.Contains(other[i]) ? 1 : 0;
+                set.Add(other[i]);
             }
 
             result[i] = counter;
@@ -48,15 +47,15 @@ public class Task2
 
         return result;
     }
-        
-    [Fact]
-    public void Acceptance()
-    {
-        var first = new [] {0, 1, 2, 3, 4};
-        var second = new [] {0, 3, 4, 2, 1};
 
-        int[] result = CountTopK(first, second);
-            
-        result.Should().BeEquivalentTo(new []{1, 1, 1, 3, 5});
+    [Fact]
+    public void Acceptance1()
+    {
+        int[] first = [0, 1, 2, 3, 4];
+        int[] second = [0, 3, 4, 2, 1];
+
+        int[] result = CountTopK1(first, second);
+
+        result.Should().BeEquivalentTo([1, 1, 1, 3, 5]);
     }
 }
