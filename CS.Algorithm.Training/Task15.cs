@@ -23,25 +23,24 @@ public class Task15
     // Назовем месяц "удачным" если в нем 5 воскресений.
     bool IsSuccessfulMonth(DateOnly date) => EnumerateDays(date).Count(x => x.DayOfWeek == DayOfWeek.Sunday) == 5;
 
-    IEnumerable<DateOnly> EnumerateMonths(DateOnly from, DateOnly to)
+    IEnumerable<DateOnly> EnumerateMonths(int year)
     {
-        from = new DateOnly(from.Year, from.Month, 1);
-        while (from <= to)
+        for (int month = 1; month <= 12; month++)
         {
-            from = from.AddMonths(1);
-            yield return from;
+            yield return new DateOnly(year, month, 1);
         }
     }
 
     // Назовем "коэффициентом удачности" календарного года число "удачных" месяцев в этом году.
-    int GetSuccessRate(int year) => EnumerateMonths(new DateOnly(year, 1, 1), new DateOnly(year, 12, 1)).Count(x => x.DayOfWeek == DayOfWeek.Sunday);
+    int GetSuccessRate(int year) => EnumerateMonths(year).Count(x => x.DayOfWeek == DayOfWeek.Sunday);
 
     [Fact]
     public void Acceptance()
     {
         // Вывести на печать все "удачные месяцы" по одному на строку в формате MM.yyyy (например, 01.2022),
-        // начиная с января 2010 года и по декабрь 2020 включительно,
-        var formated = EnumerateMonths(new DateOnly(2010, 1, 1), new DateOnly(2020, 12, 1))
+        // начиная с января 2010 года и по декабрь 2020 включительно
+        var formated = Enumerable.Range(2010, 11)
+            .SelectMany(EnumerateMonths)
             .Where(IsSuccessfulMonth)
             .Select(x => x.ToString("MM.yyyy"))
             .ToArray();
@@ -51,12 +50,19 @@ public class Task15
         // * затем по числу дней в этом месяце по убыванию,
         // * затем по номеру месяца в году по возрастанию,
         // * затем по году по возрастанию// для сортировки использовать Linq
-        var sorted = EnumerateMonths(new DateOnly(2010, 1, 1), new DateOnly(2020, 12, 1))
+        var sorted = Enumerable.Range(2010, 2020)
+            .SelectMany(EnumerateMonths)
             .Where(IsSuccessfulMonth)
-            .OrderByDescending(x => GetSuccessRate(x.Year))
-            .ThenByDescending(x => x.DaysInMonth())
-            .ThenBy(x => x.Month)
-            .ThenBy(x => x.Year)
+            .Select(x => new
+            {
+                Date = x,
+                SuccessRate = GetSuccessRate(x.Year),
+                DaysInMonth = x.DaysInMonth()
+            })
+            .OrderByDescending(x => x.SuccessRate)
+            .ThenByDescending(x => x.DaysInMonth)
+            .ThenBy(x => x.Date.Month)
+            .ThenBy(x => x.Date.Year)
             .ToArray();
     }
 }
