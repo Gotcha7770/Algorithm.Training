@@ -92,7 +92,7 @@ public class LinkFactory
     }
 }
 
-public static class Extensions
+public static partial class AdHocExtensions
 {
     public static T GetValue<T>(this NameValueCollection source, string key)
     {

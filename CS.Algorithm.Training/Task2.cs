@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -48,6 +49,20 @@ public class Task2
         return result;
     }
 
+    public int[] CountTopK2(int[] one, int[] other)
+    {
+        var set = new HashSet<int>();
+        return one.Zip(other, (x, y) => (x, y))
+            .Select(x =>
+            {
+                var a = set.Add(x.x) ? 0 : 1;
+                var b = set.Add(x.y) ? 0 : 1;
+                return a + b;
+            })
+            .Scan(0, (acc, cur) => acc + cur)
+            .ToArray();
+    }
+
     [Fact]
     public void Acceptance1()
     {
@@ -55,6 +70,17 @@ public class Task2
         int[] second = [0, 3, 4, 2, 1];
 
         int[] result = CountTopK1(first, second);
+
+        result.Should().BeEquivalentTo([1, 1, 1, 3, 5]);
+    }
+
+    [Fact]
+    public void Acceptance2()
+    {
+        int[] first = [0, 1, 2, 3, 4];
+        int[] second = [0, 3, 4, 2, 1];
+
+        int[] result = CountTopK2(first, second);
 
         result.Should().BeEquivalentTo([1, 1, 1, 3, 5]);
     }
