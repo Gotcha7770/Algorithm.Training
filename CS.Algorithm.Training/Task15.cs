@@ -32,7 +32,7 @@ public class Task15
     }
 
     // Назовем "коэффициентом удачности" календарного года число "удачных" месяцев в этом году.
-    int GetSuccessRate(int year) => EnumerateMonths(year).Count(x => x.DayOfWeek == DayOfWeek.Sunday);
+    int GetSuccessRate(int year) => EnumerateMonths(year).Count(IsSuccessfulMonth);
 
     [Fact]
     public void Acceptance()

@@ -53,10 +53,10 @@ public class Task2
     {
         var set = new HashSet<int>();
         return one.Zip(other, (x, y) => (x, y))
-            .Select(x =>
+            .Select(tuple =>
             {
-                var a = set.Add(x.x) ? 0 : 1;
-                var b = set.Add(x.y) ? 0 : 1;
+                var a = set.Add(tuple.x) ? 0 : 1;
+                var b = set.Add(tuple.y) ? 0 : 1;
                 return a + b;
             })
             .Scan(0, (acc, cur) => acc + cur)
