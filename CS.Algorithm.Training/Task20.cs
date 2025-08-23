@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reactive.Disposables;
 using FluentAssertions;
 using Xunit;
 
@@ -20,7 +18,7 @@ public class Task20
         IEnumerable<IEnumerable<Tariff>> input,
         IEnumerable<IEnumerable<Tariff>> expected)
     {
-        var result = input.ProductNDeclarative().Select(x => x.ToArray()).ToArray();
+        var result = input.ProductNImperative().Select(x => x.ToArray());
         result
             .Should()
             .BeEquivalentTo(expected);
@@ -40,52 +38,72 @@ public class Task20
 
 public static partial class AdHocExtensions
 {
-    public static IEnumerable<IEnumerable<T>> ProductNDeclarative<T>(
-        this IEnumerable<IEnumerable<T>> source)
+    public static IEnumerable<IEnumerable<T>> ProductNImperative<T>(this IEnumerable<IEnumerable<T>> source)
     {
-        using var cleanup = new CompositeDisposable();
-        var enumerators = new List<IEnumerator<T>>();
+        ArgumentNullException.ThrowIfNull(source);
 
-        foreach (var item in source)
+        return EnumerableEx.Create(() =>
         {
-            var enumerator = item.GetEnumerator();
-            if (enumerator.MoveNext())
+            var enumerators = new List<IEnumerator<T>>();
+            foreach (var item in source)
             {
-                cleanup.Add(enumerator);
-                enumerators.Add(enumerator);
+                if (item is null)
+                    throw new ArgumentNullException(nameof(source), "One of the sequences is null.");
+
+                var enumerator = item.GetEnumerator();
+                if (enumerator.MoveNext())
+                {
+                    enumerators.Add(enumerator);
+                }
+                else
+                {
+                    enumerator.Dispose();
+                    enumerators.ForEach(x => x.Dispose());
+                    throw new ArgumentNullException(nameof(source), "One of the sequences is empty.");
+                }
             }
-            else
+
+            return Iterator(enumerators);
+        });
+    }
+
+    private static IEnumerator<IEnumerable<T>> Iterator<T>(this List<IEnumerator<T>> enumerators)
+    {
+        try
+        {
+            int index = enumerators.Count - 1;
+            while (true)
             {
-                enumerator.Dispose();
+                // возвращаем текущий набор
+                yield return enumerators.Select(x => x.Current);
+
+                // на каждом шагу продвигаем enumerator на 1 элемент
+                if (enumerators[index].MoveNext() is false)
+                {
+                    // если это не возможно, ищем следующий enumerator, который можно продвинуть на 1 элемент
+                    do { --index; } while ( index >= 0 && enumerators[index].MoveNext() is false);
+                    
+                    // если такого нет, выходим
+                    if(index == -1)
+                        break;
+
+                    // если есть, сбрасываем все предыдущие
+                    enumerators[(index+1)..].ForEach(x =>
+                    {
+                        x.Reset();
+                        x.MoveNext();
+                    });
+                    
+                    index = enumerators.Count - 1;
+                }
             }
         }
-
-        int index = enumerators.Count - 1;
-        while (true)
+        finally
         {
-            do
-            {
-                yield return enumerators.Select(x => x.Current);
-            } while (enumerators[index].MoveNext());
-
-            // поиск следующего множества, где можно поменять элемент
-            do
-            {
-                index--;
-            } while (index >= 0 && enumerators[index].MoveNext() is false);
-
-            if (index < 0)
-                break;
-
-            // сброс всех предыдущих элементов
-            for (; index < enumerators.Count-1 ; index++)
-            {
-                enumerators[index+1].Reset();
-                enumerators[index + 1].MoveNext();
-            }
+            enumerators.ForEach(x => x.Dispose());
         }
     }
-    
+
     public static IEnumerable<IEnumerable<T>> SortedProductN<T>(
         this IEnumerable<IEnumerable<T>> source)
     {
@@ -125,9 +143,9 @@ public class SortedProductCases : TheoryData<IEnumerable<ImmutableSortedSet<Tari
                 [new Tariff("T1", 100), new Tariff("T4", 150)], //250
                 [new Tariff("T1", 100), new Tariff("T3", 200)], //300
                 [new Tariff("T2", 170), new Tariff("T4", 150)], //320
-                [new Tariff("T2", 170), new Tariff("T3", 200)]  //370
+                [new Tariff("T2", 170), new Tariff("T3", 200)] //370
             ]);
-        
+
         Add(
             [
                 [
@@ -143,7 +161,7 @@ public class SortedProductCases : TheoryData<IEnumerable<ImmutableSortedSet<Tari
                 [new Tariff("T1", 100), new Tariff("T4", 140)], //240
                 [new Tariff("T2", 160), new Tariff("T4", 140)], //300
                 [new Tariff("T1", 100), new Tariff("T3", 210)], //310
-                [new Tariff("T2", 160), new Tariff("T3", 210)]  //370
+                [new Tariff("T2", 160), new Tariff("T3", 210)] //370
             ]);
 
         Add(
@@ -163,18 +181,18 @@ public class SortedProductCases : TheoryData<IEnumerable<ImmutableSortedSet<Tari
                 ]
             ],
             [
-                [new Tariff("T1", 100), new Tariff("T4", 50), new Tariff("T6", 80)],   // 230
-                [new Tariff("T1", 100), new Tariff("T4", 50), new Tariff("T7", 120)],  // 270
-                [new Tariff("T1", 100), new Tariff("T5", 150), new Tariff("T6", 80)],  // 330
-                [new Tariff("T2", 200), new Tariff("T4", 50), new Tariff("T6", 80)],   // 330
+                [new Tariff("T1", 100), new Tariff("T4", 50), new Tariff("T6", 80)], // 230
+                [new Tariff("T1", 100), new Tariff("T4", 50), new Tariff("T7", 120)], // 270
+                [new Tariff("T1", 100), new Tariff("T5", 150), new Tariff("T6", 80)], // 330
+                [new Tariff("T2", 200), new Tariff("T4", 50), new Tariff("T6", 80)], // 330
                 [new Tariff("T1", 100), new Tariff("T5", 150), new Tariff("T7", 120)], // 370
-                [new Tariff("T2", 200), new Tariff("T4", 50), new Tariff("T7", 120)],  // 370
-                [new Tariff("T2", 200), new Tariff("T5", 150), new Tariff("T6", 80)],  // 430
-                [new Tariff("T3", 300), new Tariff("T4", 50), new Tariff("T6", 80)],   // 430
+                [new Tariff("T2", 200), new Tariff("T4", 50), new Tariff("T7", 120)], // 370
+                [new Tariff("T2", 200), new Tariff("T5", 150), new Tariff("T6", 80)], // 430
+                [new Tariff("T3", 300), new Tariff("T4", 50), new Tariff("T6", 80)], // 430
                 [new Tariff("T2", 200), new Tariff("T5", 150), new Tariff("T7", 120)], // 470
-                [new Tariff("T3", 300), new Tariff("T4", 50), new Tariff("T7", 120)],  // 470
-                [new Tariff("T3", 300), new Tariff("T5", 150), new Tariff("T6", 80)],  // 530
-                [new Tariff("T3", 300), new Tariff("T5", 150), new Tariff("T7", 120)]  // 570
+                [new Tariff("T3", 300), new Tariff("T4", 50), new Tariff("T7", 120)], // 470
+                [new Tariff("T3", 300), new Tariff("T5", 150), new Tariff("T6", 80)], // 530
+                [new Tariff("T3", 300), new Tariff("T5", 150), new Tariff("T7", 120)] // 570
             ]
         );
     }
