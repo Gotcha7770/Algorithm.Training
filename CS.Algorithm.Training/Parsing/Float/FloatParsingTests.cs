@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using Algorithm.Training.Parsing.Parsers;
-using FluentAssertions;
+using AwesomeAssertions;
 using Sprache;
 using Xunit;
 

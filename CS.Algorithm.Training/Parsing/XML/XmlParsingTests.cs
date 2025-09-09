@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Algorithm.Training.Parsing.XML;

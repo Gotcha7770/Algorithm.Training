@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Web;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Algorithm.Training;

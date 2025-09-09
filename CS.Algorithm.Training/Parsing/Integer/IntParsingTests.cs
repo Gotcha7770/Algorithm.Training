@@ -1,9 +1,9 @@
 ﻿using System;
 using Algorithm.Training.Parsing.Parsers;
-using FluentAssertions;
+using AwesomeAssertions;
 using Sprache;
 using Xunit;
-using static FluentAssertions.FluentActions;
+using static AwesomeAssertions.FluentActions;
 
 namespace Algorithm.Training.Parsing.Integer;
 

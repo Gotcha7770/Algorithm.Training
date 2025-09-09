@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using FluentAssertions;
+﻿using System;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Algorithm.Training;

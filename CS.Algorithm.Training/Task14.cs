@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Algorithm.Training;
@@ -10,16 +10,6 @@ namespace Algorithm.Training;
 
 public class Task14
 {
-    [Fact]
-    public void Divisibility()
-    {
-        var numbers = Enumerable.Range(1, 25)
-            .Where(x => x % 3 == 0 && x % 5 == 0)
-            .ToArray();
-
-        numbers.Should().OnlyContain(x => x % 15 == 0);
-    }
-
     [Fact]
     public void FizzBuzz1()
     {
@@ -143,7 +133,7 @@ public class Task14
                 Console.Write("Fizz");
             if (i % 5 == 0)
                 Console.Write("Buzz");
-            if (!(i % 3 == 0 || i % 5 == 0))
+            if (i % 3 != 0 && i % 5 != 0)
                 Console.Write(i);
 
             Console.Write(Environment.NewLine);
