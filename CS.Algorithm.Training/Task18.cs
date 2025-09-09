@@ -6,6 +6,9 @@ using Xunit;
 
 namespace Algorithm.Training;
 
+/// <summary>
+/// Декартово произведение с условиями соединения элементов
+/// </summary>
 public class Task18
 {
     [Theory]
@@ -15,7 +18,7 @@ public class Task18
         Func<int, int, bool> canBeCombined, 
         IEnumerable<IEnumerable<int>> expected)
     {
-        input.ProductN(canBeCombined)
+        input.Product(canBeCombined)
             .Should()
             .BeEquivalentTo(expected);
     }
@@ -23,7 +26,18 @@ public class Task18
 
 public static partial class AdHocExtensions
 {
-    public static IEnumerable<IEnumerable<T>> ProductN<T>(
+    public static IEnumerable<IEnumerable<T>> Product<T>(
+        this IEnumerable<IEnumerable<T>> source)
+    {
+        return source.Aggregate<IEnumerable<T>, IEnumerable<IEnumerable<T>>>(
+            [[]],
+            (acc, cur) =>
+                from prevProductItem in acc
+                from item in cur
+                select prevProductItem.Append(item));
+    }
+
+    public static IEnumerable<IEnumerable<T>> Product<T>(
         this IEnumerable<IEnumerable<T>> source,
         Func<T, T, bool> canBeCombined)
     {
@@ -46,6 +60,14 @@ public class ProductCases : TheoryData<IEnumerable<IEnumerable<int>>, Func<int, 
 {
     public ProductCases()
     {
+        Add(
+            [
+                [1, 2],
+                []
+            ],
+            (x, y) => true,
+            []);
+        
         Add(
             [
                 [1, 2],

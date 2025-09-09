@@ -82,8 +82,8 @@ public class Task14
     {
         IEnumerable<string> Iterator(int x)
         {
-            if(x % 3 == 0) yield return "Fizz";
-            if(x % 5 == 0) yield return "Buzz";
+            if (x % 3 == 0) yield return "Fizz";
+            if (x % 5 == 0) yield return "Buzz";
         }
 
         var result = Enumerable.Range(1, 25)
