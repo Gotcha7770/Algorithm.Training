@@ -18,7 +18,7 @@ public class Task3
         public Node<T> Next { get; set; }
 
         public static implicit operator T(Node<T> node) => node.Value;
-            
+
         public static implicit operator Node<T>(T value) => new(value);
     }
 
@@ -32,7 +32,7 @@ public class Task3
             {
                 Head = values[0];
                 var current = Head;
-                    
+
                 for (int i = 1; i < values.Length; i++)
                 {
                     current.Next = values[i];
@@ -40,31 +40,33 @@ public class Task3
                 }
             }
         }
-            
+
         public void Reverse()
         {
             // ()^, [1]^ -> [2] -> [3]
             // () <- [1]^,  [2]^ -> [3]
             // () <- [1] <- [2]^, [3]^
 
-            Node<T> prev = null;
-            var current = Head;
-            
-            while (current is not null)
+            Node<T> sourceHead = Head;
+            Node<T> targetHead = null;
+
+            while (sourceHead is not null)
             {
-                var next = current.Next;
-                current.Next = prev;
-                prev = current;
-                current = next;
+                // targetHead = sourceHead;
+                // sourceHead = sourceHead.Next;
+                var tmp = sourceHead;
+                sourceHead = sourceHead.Next;
+                tmp.Next = targetHead;
+                targetHead = tmp;
             }
 
-            Head = prev;
+            Head = targetHead;
         }
-            
+
         public IEnumerator<Node<T>> GetEnumerator()
         {
             var current = Head;
-                
+
             while (current is not null)
             {
                 yield return current;
@@ -75,35 +77,17 @@ public class Task3
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    [Fact]
-    public void Acceptance_Empty()
+    [Theory]
+    [ClassData(typeof(ReverseLinkedListCases))]
+    public void Acceptance(int[] input, int[] expected)
     {
-        var list = new CustomLinkedList<int>();
-        list.Reverse();
-            
-        list.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Acceptance_Single()
-    {
-        var list = new CustomLinkedList<int>(1);
+        var list = new CustomLinkedList<int>(input);
         list.Reverse();
 
-        list.Select(x => x.Value).Should()
-            .BeEquivalentTo([1], opt => opt.WithAutoConversion());
+        list.Select(x => x.Value)
+            .Should()
+            .BeEquivalentTo(expected);
     }
-
-    [Fact]
-    public void Acceptance_Many()
-    {
-        var list = new CustomLinkedList<int>(1, 2, 3, 4, 5);
-        list.Reverse();
-            
-        list.Select(x => x.Value).Should()
-            .BeEquivalentTo([5, 4, 3, 2, 1]);
-    }
-        
 
     #endregion
 
@@ -111,7 +95,7 @@ public class Task3
 
     void Reverse<T>(LinkedList<T> source)
     {
-        var head  = source.First;
+        var head = source.First;
         while (head?.Next is not null)
         {
             var next = head.Next;
@@ -120,31 +104,14 @@ public class Task3
         }
     }
 
-    [Fact]
-    public void LinkedList_Acceptance_Empty()
+    [Theory]
+    [ClassData(typeof(ReverseLinkedListCases))]
+    public void LinkedList_Acceptance(int[] input, int[] expected)
     {
-        var list = new LinkedList<int>();
+        var list = new LinkedList<int>(input);
         Reverse(list);
-            
-        list.Should().BeEmpty();
-    }
 
-    [Fact]
-    public void LinkedList_Acceptance_Single()
-    {
-        var list = new LinkedList<int>([1]);
-        Reverse(list);
-            
-        list.Should().BeEquivalentTo([1]);
-    }
-
-    [Fact]
-    public void LinkedList_Acceptance_Many()
-    {
-        var list = new LinkedList<int>([1, 2, 3, 4, 5]);
-        Reverse(list);
-            
-        list.Should().BeEquivalentTo([5, 4, 3, 2, 1]);
+        list.Should().BeEquivalentTo(expected);
     }
 
     #endregion
@@ -163,32 +130,27 @@ public class Task3
         return result;
     }
 
-    [Fact]
-    public void NewLinkedList_Acceptance_Empty()
+    [Theory]
+    [InlineData(new int[0], new int[0])]
+    [InlineData(new[] { 1 }, new[] { 1 })]
+    [InlineData(new[] { 1, 2, 3, 4, 5 }, new[] { 5, 4, 3, 2, 1 })]
+    public void NewLinkedList_Acceptance(int[] input, int[] expected)
     {
-        var list = new LinkedList<int>();
+        var list = new LinkedList<int>(input);
         var result = Reverse2(list);
-            
-        result.Should().BeEmpty();
-    }
 
-    [Fact]
-    public void NewLinkedList_Acceptance_Single()
-    {
-        var list = new LinkedList<int>([1]);
-        var result = Reverse2(list);
-            
-        result.Should().BeEquivalentTo([1]);
-    }
-
-    [Fact]
-    public void NewLinkedList_Acceptance_Many()
-    {
-        var list = new LinkedList<int>([1, 2, 3, 4, 5]);
-        var result = Reverse2(list);
-            
-        result.Should().BeEquivalentTo([5, 4, 3, 2, 1]);
+        result.Should().BeEquivalentTo(expected);
     }
 
     #endregion
+}
+
+public class ReverseLinkedListCases : TheoryData<int[], int[]>
+{
+    public ReverseLinkedListCases()
+    {
+        Add([], []);
+        Add([1], [1]);
+        Add([1, 2, 3, 4, 5], [5, 4, 3, 2, 1]);
+    }
 }
