@@ -7,7 +7,7 @@
 
         <RootNamespace>Algorithm.Training</RootNamespace>
 
-        <LangVersion>preview</LangVersion>
+        <LangVersion>latestmajor</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
