@@ -10,28 +10,18 @@ namespace Algorithm.Training;
 
 /// <summary>
 /// Отсортированное декартово произведение
+/// k-way merge
+/// best-first search.
 /// </summary>
 public class Task20
 {
     [Theory]
     [ClassData(typeof(SortedProductCases))]
-    public void Acceptance1(
-        IEnumerable<IEnumerable<Tariff>> input,
-        IEnumerable<IEnumerable<Tariff>> expected)
-    {
-        var result = input.ProductNImperative().Select(x => x.ToArray());
-        result
-            .Should()
-            .BeEquivalentTo(expected);
-    }
-
-    [Theory]
-    [ClassData(typeof(SortedProductCases))]
-    public void Acceptance2(
+    public void Acceptance(
         IEnumerable<ImmutableSortedSet<Tariff>> input,
         IEnumerable<IEnumerable<Tariff>> expected)
     {
-        input.SortedProductN()
+        input.SortedProduct()
             .Should()
             .BeEquivalentTo(expected, options => options.WithStrictOrdering());
     }
@@ -39,81 +29,43 @@ public class Task20
 
 public static partial class AdHocExtensions
 {
-    public static IEnumerable<IEnumerable<T>> ProductNImperative<T>(this IEnumerable<IEnumerable<T>> source)
-    {
-        ArgumentNullException.ThrowIfNull(source);
-
-        return EnumerableEx.Create(() =>
-        {
-            var enumerators = new List<IEnumerator<T>>();
-            foreach (var item in source)
-            {
-                if (item is null)
-                    throw new ArgumentNullException(nameof(source), "One of the sequences is null.");
-
-                var enumerator = item.GetEnumerator();
-                if (enumerator.MoveNext())
-                {
-                    enumerators.Add(enumerator);
-                }
-                else
-                {
-                    enumerator.Dispose();
-                    enumerators.ForEach(x => x.Dispose());
-                    throw new ArgumentNullException(nameof(source), "One of the sequences is empty.");
-                }
-            }
-
-            return Iterator(enumerators);
-        });
-    }
-
-    private static IEnumerator<IEnumerable<T>> Iterator<T>(this List<IEnumerator<T>> enumerators)
-    {
-        try
-        {
-            int index = enumerators.Count - 1;
-            while (true)
-            {
-                // возвращаем текущий набор
-                yield return enumerators.Select(x => x.Current);
-
-                // на каждом шагу продвигаем enumerator на 1 элемент
-                if (enumerators[index].MoveNext() is false)
-                {
-                    // если это не возможно, ищем следующий enumerator, который можно продвинуть на 1 элемент
-                    do { --index; } while ( index >= 0 && enumerators[index].MoveNext() is false);
-                    
-                    // если такого нет, выходим
-                    if(index == -1)
-                        break;
-
-                    // если есть, сбрасываем все предыдущие
-                    enumerators[(index+1)..].ForEach(x =>
-                    {
-                        x.Reset();
-                        x.MoveNext();
-                    });
-                    
-                    index = enumerators.Count - 1;
-                }
-            }
-        }
-        finally
-        {
-            enumerators.ForEach(x => x.Dispose());
-        }
-    }
-
-    public static IEnumerable<IEnumerable<T>> SortedProductN<T>(
-        this IEnumerable<IEnumerable<T>> source)
+    public static IEnumerable<IEnumerable<T>> SortedProduct<T>(this IEnumerable<IEnumerable<T>> source)
     {
         return source.Aggregate<IEnumerable<T>, IEnumerable<IEnumerable<T>>>(
             [[]],
-            (acc, cur) =>
-                from prevProductItem in acc
-                from item in cur
-                select prevProductItem.Append(item));
+            SortedProduct);
+    }
+
+    public static IEnumerable<IEnumerable<T>> SortedProduct<T>(this IEnumerable<IEnumerable<T>> one,
+        IEnumerable<T> other)
+    {
+        using var multiplicand = one.GetEnumerator();
+        if (multiplicand.MoveNext() is false)
+            yield break;
+
+        using var multiplier = other.GetEnumerator();
+        if (multiplier.MoveNext() is false)
+            yield break;
+
+        var (a, b) = (multiplicand.Current, multiplier.Current);
+        yield return a.Append(b); // the first values are minimal
+
+        var queue = new UniquePriorityQueue<T[]>();
+
+        if (multiplicand.MoveNext())
+        {
+            queue.Enqueue([.. multiplicand.Current, b]);
+        }
+        
+        if (multiplier.MoveNext())
+        {
+            queue.Enqueue([.. a, multiplier.Current]);
+        }
+
+        while (queue.TryDequeue(out var element))
+        {
+            yield return element;
+        }
     }
 }
 
@@ -125,10 +77,60 @@ public record Tariff(string FareCode, int BaseAmount) : IComparable<Tariff>
     }
 }
 
+public class UniquePriorityQueue<T> : IEnumerable<T>
+{
+    private readonly SortedSet<T> _set;
+
+    public UniquePriorityQueue(IComparer<T> comparer = null)
+    {
+        _set = new SortedSet<T>(comparer);
+    }
+
+    public UniquePriorityQueue(IEnumerable<T> items, IComparer<T> comparer = null)
+    {
+        _set = new SortedSet<T>(items, comparer);
+    }
+
+    public void Enqueue(T item) => _set.Add(item);
+
+    public bool TryDequeue(out T item)
+    {
+        if (_set.Count == 0)
+        {
+            item = default;
+            return false;
+        }
+
+        item = _set.Min;
+        _set.Remove(item);
+        return true;
+    }
+
+    public IEnumerator<T> GetEnumerator()
+    {
+        while (TryDequeue(out T item))
+        {
+            yield return item;
+        }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
 public class SortedProductCases : TheoryData<IEnumerable<ImmutableSortedSet<Tariff>>, IEnumerable<IEnumerable<Tariff>>>
 {
     public SortedProductCases()
     {
+        Add(
+            [
+                [
+                    new Tariff("T1", 100),
+                    new Tariff("T2", 170)
+                ],
+                []
+            ],
+            []);
+
         Add(
             [
                 [
