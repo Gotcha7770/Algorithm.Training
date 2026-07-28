@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Benchmarks/Benchmarks.csproj" />
   <Project Path="CS.Algorithm.Training/CS.Algorithm.Training.csproj" />
   <Project Path="FS.Algorithm.Training/FS.Algorithm.Training.fsproj" />
 </Solution>
